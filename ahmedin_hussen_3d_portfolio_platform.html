@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ahmedin Hussen | Senior Full-Stack Engineer & 3D Web Architect</title>
+  <meta name="description" content="Portfolio of Ahmedin Hussen - Senior Full-Stack Engineer, 3D Web Architect, and Cloud Infrastructure Specialist." />
+  <meta name="keywords" content="Ahmedin Hussen, Full Stack Developer, Three.js, React, Next.js, Node.js, WebGL, Portfolio, Ethiopia" />
+  <meta property="og:title" content="Ahmedin Hussen | Senior Full-Stack Engineer" />
+  <meta property="og:description" content="Explore a cinematic, high-performance 3D digital universe portfolio showcasing enterprise full-stack projects." />
+  <meta property="og:type" content="website" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bgDark: '#0a0a0b',
+            surfaceDark: '#16161a',
+            borderDark: '#2a2a30',
+            primary: '#4f8ff7',
+            secondary: '#8b5cf6',
+            tertiary: '#06b6d4',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'spin-slow': 'spin 12s linear infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-12px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Custom scrollbars and canvas positioning */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0a0a0b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2a2a30;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4f8ff7;
+    }
+    .glow-primary {
+      box-shadow: 0 0 25px -5px rgba(79, 143, 247, 0.35);
+    }
+    .glow-secondary {
+      box-shadow: 0 0 25px -5px rgba(139, 92, 246, 0.35);
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #ffffff 0%, #4f8ff7 50%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body class="bg-[#0a0a0b] text-slate-100 font-sans antialiased selection:bg-[#4f8ff7]/30 selection:text-[#4f8ff7] min-h-screen relative overflow-x-hidden">
+  
+  <div id="root"></div>
+
+  <!-- Main Application Script -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo, createContext, useContext } = React;
+
+    // --- MOCK DATABASE & INITIAL DATA ---
+    const INITIAL_PROJECTS = [
+      {
+        id: 'proj-1',
+        title: 'Aether3D - Realtime WebGL Mesh Engine',
+        slug: 'aether3d-engine',
+        description: 'High-performance WebGL graphics engine and spatial node editor designed for rendering real-time digital twins with 60 FPS performance on mid-tier hardware.',
+        category: '3D Web',
+        featured: true,
+        thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+        liveUrl: 'https://aether3d.example.com',
+        githubUrl: 'https://github.com/ahmedinhussen/aether3d',
+        tags: ['Three.js', 'React', 'TypeScript', 'GLSL Shaders', 'WebGPU'],
+        status: 'Production',
+        order: 1,
+        metrics: { lighthouse: 98, fps: '60 FPS', latency: '14ms' },
+        longDescription: 'Aether3D combines custom GLSL fragment shaders, instanced rendering mesh passes, and Web Workers to process complex CAD geometries directly in the browser without freezing the main UI thread.'
+      },
+      {
+        id: 'proj-2',
+        title: 'FinPulse - Distributed Banking Gateway',
+        slug: 'finpulse-gateway',
+        description: 'Microservices API hub processing multi-currency transactions, PCI-DSS compliant auth flows, and low-latency webhook delivery for fintech platforms.',
+        category: 'Full Stack',
+        featured: true,
+        thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
+        liveUrl: 'https://finpulse.example.com',
+        githubUrl: 'https://github.com/ahmedinhussen/finpulse-core',
+        tags: ['Node.js', 'Next.js 14', 'PostgreSQL', 'Redis', 'Docker'],
+        status: 'Production',
+        order: 2,
+        metrics: { uptime: '99.99%', rateLimit: '10k req/s', coverage: '94%' },
+        longDescription: 'Engineered with strict zero-trust API security, database connection pooling via Prisma Accelerate, and idempotent event consumers built on BullMQ and Upstash Redis.'
+      },
+      {
+        id: 'proj-3',
+        title: 'AmharicNLP - East African Intelligence Platform',
+        slug: 'amharic-nlp-suite',
+        description: 'An open-source natural language processing and semantic search framework tailored for Ethiopic languages with real-time translation pipelines.',
+        category: 'AI & Data',
+        featured: true,
+        thumbnail: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=800&q=80',
+        liveUrl: 'https://amharicnlp.example.org',
+        githubUrl: 'https://github.com/ahmedinhussen/amharic-nlp',
+        tags: ['Python', 'FastAPI', 'PyTorch', 'React', 'TailwindCSS'],
+        status: 'Active Beta',
+        order: 3,
+        metrics: { accuracy: '96.2%', modelSize: '120MB', latency: '45ms' },
+        longDescription: 'Leverages fine-tuned transformer models converted to ONNX Web runtime formats for client-side privacy-preserving text classification and translation.'
+      },
+      {
+        id: 'proj-4',
+        title: 'KubeMesh - Cloud Observability Visualizer',
+        slug: 'kubemesh-observability',
+        description: 'Real-time telemetry and service mesh visualization dashboard for monitoring multi-cluster Kubernetes deployments with sub-second websocket streaming.',
+        category: 'DevOps',
+        featured: false,
+        thumbnail: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80',
+        liveUrl: 'https://kubemesh.example.io',
+        githubUrl: 'https://github.com/ahmedinhussen/kubemesh',
+        tags: ['Go', 'WebSockets', 'React', 'Prometheus', 'Grafana'],
+        status: 'Production',
+        order: 4,
+        metrics: { clusters: '50+', streams: '100k events/m', CPU: '< 2%' },
+        longDescription: 'Features dynamic node graph clustering with customized force-directed layouts, rendering live network traffic and memory consumption spikes.'
+      }
+    ];
+
+    const INITIAL_SKILLS = [
+      { id: 's1', name: 'React / Next.js 14', category: 'Frontend', level: 98, icon: 'Layout' },
+      { id: 's2', name: 'TypeScript', category: 'Frontend', level: 95, icon: 'Code' },
+      { id: 's3', name: 'Three.js / WebGL', category: '3D Web', level: 90, icon: 'Sparkles' },
+      { id: 's4', name: 'Tailwind CSS', category: 'Frontend', level: 98, icon: 'Layers' },
+      { id: 's5', name: 'Node.js / Express', category: 'Backend', level: 92, icon: 'Server' },
+      { id: 's6', name: 'PostgreSQL / Prisma', category: 'Databases', level: 90, icon: 'Database' },
+      { id: 's7', name: 'Redis / BullMQ', category: 'Databases', level: 88, icon: 'Zap' },
+      { id: 's8', name: 'Docker / Kubernetes', category: 'DevOps', level: 85, icon: 'Cpu' },
+      { id: 's9', name: 'CI/CD & GitHub Actions', category: 'DevOps', level: 90, icon: 'Activity' },
+      { id: 's10', name: 'System Security & OAuth', category: 'DevOps', level: 88, icon: 'Shield' }
+    ];
+
+    const INITIAL_EXPERIENCE = [
+      {
+        id: 'e1',
+        company: 'CloudTech Global Systems',
+        position: 'Lead Full-Stack & 3D Web Architect',
+        period: '2023 - Present',
+        current: true,
+        description: 'Directed the architectural refactoring of enterprise cloud suites, reducing page load times by 62% and implementing interactive 3D product visualizers.',
+        tags: ['Next.js App Router', 'Three.js', 'PostgreSQL', 'AWS']
+      },
+      {
+        id: 'e2',
+        company: 'NexaDigital Innovations',
+        position: 'Senior Full-Stack Engineer',
+        period: '2021 - 2023',
+        current: false,
+        description: 'Engineered high-throughput REST and GraphQL APIs handling over 5 million daily requests. Implemented strict automated CI/CD testing pipelines.',
+        tags: ['Node.js', 'TypeScript', 'Docker', 'Redis', 'Tailwind']
+      },
+      {
+        id: 'e3',
+        company: 'HornTech Solutions',
+        position: 'Software Engineer',
+        period: '2019 - 2021',
+        current: false,
+        description: 'Developed scalable client dashboards, payment integrations, and localization support for localized fintech applications.',
+        tags: ['React', 'Express', 'MongoDB', 'REST APIs']
+      }
+    ];
+
+    const INITIAL_TESTIMONIALS = [
+      {
+        id: 't1',
+        name: 'Sarah Jenkins',
+        role: 'VP of Engineering',
+        company: 'CloudTech Global',
+        quote: 'Ahmedin is that rare talent who seamlessly bridges high-level 3D creative design with robust, resilient backend architecture. His technical leadership transformed our platform performance.',
+        rating: 5,
+        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80'
+      },
+      {
+        id: 't2',
+        name: 'Dawit Tadesse',
+        role: 'CTO',
+        company: 'NexaDigital',
+        quote: 'Delivered our complex multi-tenant dashboard two weeks ahead of schedule with zero critical bugs. His mastery of modern web performance and zero-trust security is outstanding.',
+        rating: 5,
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'
+      }
+    ];
+
+    const INITIAL_BLOG = [
+      {
+        id: 'b1',
+        title: 'Optimizing WebGL Shaders for Low-End Mobile Devices',
+        slug: 'optimizing-webgl-shaders-mobile',
+        excerpt: 'How to reduce draw calls, implement instanced rendering, and maintain 60 FPS 3D experiences across mid-range mobile browsers.',
+        readTime: '6 min read',
+        publishedAt: 'Sep 2026',
+        tags: ['WebGL', 'Performance', 'Three.js'],
+        content: `
+### The Mobile 3D Challenge
+Creating rich 3D experiences on the web is no longer reserved for desktop workstations. However, mobile GPUs face severe thermal and power constraints.
+
+#### Key Optimization Techniques:
+1. **Reduce Draw Calls**: Combine static geometries into unified InstancedBufferGeometries.
+2. **Texture Compression**: Utilize KTX2 and Basis Universal textures to compress VRAM footprint by up to 75%.
+3. **Precision Qualifiers**: Use \`precision mediump float;\` inside GLSL fragment shaders unless high accuracy is mandatory.
+
+\`\`\`javascript
+// Example: Creating an instanced mesh for particle fields
+const count = 1000;
+const geometry = new THREE.SphereGeometry(0.1, 8, 8);
+const material = new THREE.MeshStandardMaterial({ color: 0x4f8ff7 });
+const instancedMesh = new THREE.InstancedMesh(geometry, material, count);
+\`\`\`
+        `
+      },
+      {
+        id: 'b2',
+        title: 'Building Resilient Microservices with Next.js 14 & Redis',
+        slug: 'building-resilient-microservices-nextjs-redis',
+        excerpt: 'Architecting rate-limited, fail-safe API routes with distributed caching and graceful fallback mechanisms.',
+        readTime: '8 min read',
+        publishedAt: 'Aug 2026',
+        tags: ['Next.js', 'Redis', 'Architecture'],
+        content: `
+### Distributed Architecture in Next.js 14
+With the Next.js App Router, API Route Handlers function as lightweight serverless micro-endpoints. Pairing them with Redis ensures low-latency operations.
+
+#### Best Practices:
+* **Connection Pooling**: Re-use Redis clients across invocations.
+* **Rate Limiting**: Protect sensitive contact and authentication endpoints using token bucket algorithms.
+* **Circuit Breakers**: Provide cached fallback responses if primary database queries timeout.
+        `
+      }
+    ];
+
+    const INITIAL_MESSAGES = [
+      {
+        id: 'm1',
+        name: 'Elena Rostova',
+        email: 'elena@techlabs.io',
+        subject: 'Senior Full-Stack Lead Opportunity',
+        message: 'Hi Ahmedin, we loved your 3D platform portfolio! We are seeking a Lead Architect for a remote position.',
+        timestamp: '2026-09-28 14:20',
+        status: 'Unread'
+      }
+    ];
+
+    // --- ICON HELPER COMPONENT (Inline SVGs) ---
+    const Icon = ({ name, className = "w-5 h-5" }) => {
+      const icons = {
+        Layout: <path d="M3 3h18v18H3V3zm2 2v4h14V5H5zm0 6v8h8v-8H5zm10 0v8h4v-8h-4z"/>,
+        Code: <path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/>,
+        Sparkles: <path d="M12 2l2.4 5.6L20 10l-5.6 2.4L12 18l-2.4-5.6L4 10l5.6-2.4L12 2zm6 12l1.2 2.8L22 18l-2.8 1.2L18 22l-1.2-2.8L14 18l2.8-1.2L18 14z"/>,
+        Layers: <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>,
+        Server: <path d="M2 4h20v6H2V4zm0 10h20v6H2v-6zm4-7h2v2H6V7zm0 10h20v6H2"/>,
+        Database: <><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"/></>,
+        Zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>,
+        Cpu: <><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3"/></>,
+        Activity: <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>,
+        Shield: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>,
+        Terminal: <><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></>,
+        Globe: <><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></>,
+        ExternalLink: <><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>,
+        Github: <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>,
+        Linkedin: <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></>,
+        Mail: <><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></>,
+        Lock: <><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
+        User: <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+        Check: <polyline points="20 6 9 17 4 12"/>,
+        X: <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,
+        Search: <><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>,
+        Filter: <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>,
+        Plus: <><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>,
+        Trash: <><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></>,
+        Edit: <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,
+        Settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></>,
+        Moon: <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>,
+        Sun: <><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></>,
+        Clock: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
+        AlertTriangle: <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>,
+        Send: <><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></>,
+        BarChart2: <><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></>,
+        Eye: <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>
+      };
+
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+        >
+          {icons[name] || <circle cx="12" cy="12" r="10" />}
+        </svg>
+      );
+    };
+
+    // --- THREE.JS BACKGROUND SCENE COMPONENT ---
+    const ThreeScene = ({ is3DEnabled, prefersReducedMotion }) => {
+      const containerRef = useRef(null);
+      const rendererRef = useRef(null);
+      const [fps, setFps] = useState(60);
+
+      useEffect(() => {
+        if (!is3DEnabled || prefersReducedMotion || typeof THREE === 'undefined') return;
+
+        const container = containerRef.current;
+        if (!container) return;
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x0a0a0b, 0.025);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 25;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+        rendererRef.current = renderer;
+
+        // Interactive Particle Geometry
+        const particleCount = 1500;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+
+        const color1 = new THREE.Color(0x4f8ff7); // Primary Cyan-Blue
+        const color2 = new THREE.Color(0x8b5cf6); // Secondary Purple
+
+        for (let i = 0; i < particleCount * 3; i += 3) {
+          positions[i] = (Math.random() - 0.5) * 60;
+          positions[i + 1] = (Math.random() - 0.5) * 60;
+          positions[i + 2] = (Math.random() - 0.5) * 60;
+
+          const mixedColor = color1.clone().lerp(color2, Math.random());
+          colors[i] = mixedColor.r;
+          colors[i + 1] = mixedColor.g;
+          colors[i + 2] = mixedColor.b;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const material = new THREE.PointsMaterial({
+          size: 0.18,
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.75,
+          blending: THREE.AdditiveBlending
+        });
+
+        const particleSystem = new THREE.Points(geometry, material);
+        scene.add(particleSystem);
+
+        // Rotating Wireframe Torus Knot (Center Visual Feature)
+        const torusGeo = new THREE.TorusKnotGeometry(4.5, 1.2, 120, 16);
+        const torusMat = new THREE.MeshBasicMaterial({
+          color: 0x4f8ff7,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.18
+        });
+        const torusKnot = new THREE.Mesh(torusGeo, torusMat);
+        torusKnot.position.set(0, 0, -5);
+        scene.add(torusKnot);
+
+        // Mouse Parallax Interaction
+        let mouseX = 0;
+        let mouseY = 0;
+        const handleMouseMove = (e) => {
+          mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+          mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+
+        // Resize Listener
+        const handleResize = () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        };
+        window.addEventListener('resize', handleResize);
+
+        // Animation Loop & FPS Measurement
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let animationFrameId;
+
+        const animate = () => {
+          animationFrameId = requestAnimationFrame(animate);
+
+          // Rotate Objects
+          particleSystem.rotation.y += 0.0008;
+          particleSystem.rotation.x += 0.0003;
+
+          torusKnot.rotation.x += 0.003;
+          torusKnot.rotation.y += 0.005;
+
+          // Gentle Mouse Follow
+          camera.position.x += (mouseX * 2 - camera.position.x) * 0.03;
+          camera.position.y += (-mouseY * 2 - camera.position.y) * 0.03;
+          camera.lookAt(scene.position);
+
+          renderer.render(scene, camera);
+
+          // FPS Metrics Calculation
+          frameCount++;
+          const currentTime = performance.now();
+          if (currentTime >= lastTime + 1000) {
+            setFps(Math.round((frameCount * 1000) / (currentTime - lastTime)));
+            frameCount = 0;
+            lastTime = currentTime;
+          }
+        };
+
+        animate();
+
+        // Cleanup
+        return () => {
+          window.removeEventListener('mousemove', handleMouseMove);
+          window.removeEventListener('resize', handleResize);
+          cancelAnimationFrame(animationFrameId);
+          if (container && renderer.domElement) {
+            container.removeChild(renderer.domElement);
+          }
+          geometry.dispose();
+          material.dispose();
+          torusGeo.dispose();
+          torusMat.dispose();
+          renderer.dispose();
+        };
+      }, [is3DEnabled, prefersReducedMotion]);
+
+      if (!is3DEnabled || prefersReducedMotion) {
+        return (
+          <div className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-br from-[#0a0a0b] via-[#121218] to-[#0a0a0b]">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-50" />
+          </div>
+        );
+      }
+
+      return (
+        <>
+          <div ref={containerRef} className="canvas-container" />
+          <div className="fixed bottom-4 left-4 z-40 hidden md:flex items-center space-x-2 text-xs font-mono text-slate-400 bg-surfaceDark/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-borderDark">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>WebGL Active</span>
+            <span className="text-slate-600">|</span>
+            <span>{fps} FPS</span>
+          </div>
+        </>
+      );
+    };
+
+    // --- APPLICATION STATE PROVIDER & MAIN CONTAINER ---
+    const App = () => {
+      // Global Application States
+      const [is3DEnabled, setIs3DEnabled] = useState(true);
+      const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+      const [theme, setTheme] = useState('dark');
+      const [role, setRole] = useState('admin'); // 'admin' | 'editor' | 'viewer'
+      
+      // Data States
+      const [projects, setProjects] = useState(INITIAL_PROJECTS);
+      const [skills, setSkills] = useState(INITIAL_SKILLS);
+      const [experience, setExperience] = useState(INITIAL_EXPERIENCE);
+      const [testimonials, setTestimonials] = useState(INITIAL_TESTIMONIALS);
+      const [blog, setBlog] = useState(INITIAL_BLOG);
+      const [messages, setMessages] = useState(INITIAL_MESSAGES);
+      
+      // UI Modal States
+      const [activeModal, setActiveModal] = useState(null); // 'admin' | 'architecture' | 'project' | 'blog'
+      const [selectedProject, setSelectedProject] = useState(null);
+      const [selectedArticle, setSelectedArticle] = useState(null);
+      const [toast, setToast] = useState(null);
+
+      // Contact Form State
+      const [contactForm, setContactForm] = useState({ name: '', email: '', subject: '', message: '', honeypot: '' });
+      const [contactStatus, setContactStatus] = useState({ loading: false, success: false, error: null });
+
+      // Search & Filter States
+      const [projectFilter, setProjectFilter] = useState('All');
+      const [projectSearch, setProjectSearch] = useState('');
+      const [skillViewMode, setSkillViewMode] = useState('constellation'); // 'constellation' | 'grid'
+
+      // Toast Notification Trigger
+      const showToast = (msg, type = 'success') => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 4000);
+      };
+
+      // Detect Media Preference
+      useEffect(() => {
+        const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        setPrefersReducedMotion(mediaQuery.matches);
+        const handleChange = (e) => setPrefersReducedMotion(e.matches);
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+      }, []);
+
+      // Handle Contact Submission
+      const handleContactSubmit = (e) => {
+        e.preventDefault();
+        if (contactForm.honeypot) {
+          showToast('Spam submission detected.', 'error');
+          return;
+        }
+
+        if (!contactForm.name || !contactForm.email || !contactForm.message) {
+          setContactStatus({ loading: false, success: false, error: 'Please fill in all required fields.' });
+          return;
+        }
+
+        setContactStatus({ loading: true, success: false, error: null });
+
+        // Simulate API Dispatch
+        setTimeout(() => {
+          const newMessage = {
+            id: 'm-' + Date.now(),
+            name: contactForm.name,
+            email: contactForm.email,
+            subject: contactForm.subject || 'Portfolio Inquiry',
+            message: contactForm.message,
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+            status: 'Unread'
+          };
+          setMessages(prev => [newMessage, ...prev]);
+          setContactStatus({ loading: false, success: true, error: null });
+          setContactForm({ name: '', email: '', subject: '', message: '', honeypot: '' });
+          showToast('Message sent successfully! Ahmedin will review it shortly.');
+        }, 1200);
+      };
+
+      // Filtered Projects Computation
+      const filteredProjects = useMemo(() => {
+        return projects.filter(p => {
+          const matchesCategory = projectFilter === 'All' || p.category === projectFilter;
+          const matchesSearch = p.title.toLowerCase().includes(projectSearch.toLowerCase()) ||
+                                p.description.toLowerCase().includes(projectSearch.toLowerCase()) ||
+                                p.tags.some(t => t.toLowerCase().includes(projectSearch.toLowerCase()));
+          return matchesCategory && matchesSearch;
+        });
+      }, [projects, projectFilter, projectSearch]);
+
+      return (
+        <div className={`relative min-h-screen ${theme === 'light' ? 'bg-slate-50 text-slate-900' : 'bg-[#0a0a0b] text-slate-100'}`}>
+          {/* 3D Background */}
+          <ThreeScene is3DEnabled={is3DEnabled} prefersReducedMotion={prefersReducedMotion} />
+
+          {/* Navigation Bar */}
+          <header className="sticky top-0 z-50 bg-[#0a0a0b]/80 backdrop-blur-md border-b border-borderDark/80 px-4 lg:px-8 py-3 transition-colors">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              {/* Brand Logo */}
+              <a href="#hero" className="flex items-center space-x-3 group">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary p-0.5 shadow-lg group-hover:scale-105 transition-transform">
+                  <div className="w-full h-full bg-[#0a0a0b] rounded-[10px] flex items-center justify-center font-mono font-bold text-lg text-primary">
+                    AH
+                  </div>
+                </div>
+                <div>
+                  <span className="font-extrabold text-lg tracking-tight block text-white group-hover:text-primary transition-colors">Ahmedin Hussen</span>
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block -mt-1">Full-Stack Architect</span>
+                </div>
+              </a>
+
+              {/* Navigation Links */}
+              <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-300">
+                <a href="#about" className="hover:text-primary transition-colors">About</a>
+                <a href="#skills" className="hover:text-primary transition-colors">Skills</a>
+                <a href="#projects" className="hover:text-primary transition-colors">Projects</a>
+                <a href="#experience" className="hover:text-primary transition-colors">Experience</a>
+                <a href="#blog" className="hover:text-primary transition-colors">Articles</a>
+                <a href="#contact" className="hover:text-primary transition-colors">Contact</a>
+              </nav>
+
+              {/* Action Buttons & Utilities */}
+              <div className="flex items-center space-x-3">
+                {/* 3D Engine Toggle */}
+                <button
+                  onClick={() => setIs3DEnabled(!is3DEnabled)}
+                  title={is3DEnabled ? "Disable 3D Universe Mode (Saves GPU/Power)" : "Enable 3D Universe Mode"}
+                  className={`hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-mono border transition-all ${
+                    is3DEnabled 
+                      ? 'bg-primary/10 border-primary/40 text-primary' 
+                      : 'bg-surfaceDark border-borderDark text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Icon name="Sparkles" className="w-3.5 h-3.5" />
+                  <span>{is3DEnabled ? '3D ON' : '3D OFF'}</span>
+                </button>
+
+                {/* System Architecture Inspector Modal Trigger */}
+                <button
+                  onClick={() => setActiveModal('architecture')}
+                  className="px-3 py-1.5 rounded-lg bg-surfaceDark hover:bg-borderDark border border-borderDark text-xs font-mono text-slate-300 transition-colors flex items-center space-x-1"
+                  title="Inspect System Architecture & APIs"
+                >
+                  <Icon name="Terminal" className="w-3.5 h-3.5 text-tertiary" />
+                  <span className="hidden sm:inline">Arch & API</span>
+                </button>
+
+                {/* Admin CMS Trigger */}
+                <button
+                  onClick={() => setActiveModal('admin')}
+                  className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white text-xs font-semibold shadow-md transition-all flex items-center space-x-1.5"
+                >
+                  <Icon name="Settings" className="w-3.5 h-3.5" />
+                  <span>CMS Admin</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Toast Notification Floating Banner */}
+          {toast && (
+            <div className={`fixed top-20 right-4 z-50 flex items-center space-x-2 px-4 py-3 rounded-xl border shadow-xl backdrop-blur-md animate-bounce ${
+              toast.type === 'error' ? 'bg-rose-950/90 border-rose-500/50 text-rose-200' : 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200'
+            }`}>
+              <Icon name={toast.type === 'error' ? 'AlertTriangle' : 'Check'} className="w-5 h-5" />
+              <span className="text-sm font-medium">{toast.msg}</span>
+            </div>
+          )}
+
+          {/* MAIN PAGE CONTENT WRAPPER */}
+          <main className="relative z-10 max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-32">
+            
+            {/* 1. HERO SECTION */}
+            <section id="hero" className="min-h-[80vh] flex flex-col justify-center items-start pt-12 relative">
+              <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-surfaceDark border border-borderDark text-xs font-mono text-tertiary mb-6">
+                <span className="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
+                <span>Available for Enterprise Engineering & Full-Stack Consulting</span>
+              </div>
+
+              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight text-gradient mb-6 leading-none">
+                Ahmedin Hussen
+              </h1>
+
+              <p className="text-xl sm:text-2xl text-slate-300 max-w-3xl font-light mb-8 leading-relaxed">
+                Architecting high-scale digital platforms, <span className="text-primary font-normal">real-time 3D web graphics</span>, and high-performance cloud infrastructure with zero compromises on accessibility or speed.
+              </p>
+
+              {/* CTAs */}
+              <div className="flex flex-wrap gap-4 items-center">
+                <a
+                  href="#projects"
+                  className="px-6 py-3.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/25 transition-all flex items-center space-x-2 group"
+                >
+                  <span>Explore Featured Works</span>
+                  <Icon name="ExternalLink" className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </a>
+
+                <a
+                  href="#contact"
+                  className="px-6 py-3.5 rounded-xl bg-surfaceDark hover:bg-borderDark border border-borderDark text-slate-200 font-semibold transition-all flex items-center space-x-2"
+                >
+                  <Icon name="Mail" className="w-4 h-4 text-primary" />
+                  <span>Initiate Contact</span>
+                </a>
+
+                <a
+                  href="#skills"
+                  className="px-4 py-3.5 rounded-xl border border-borderDark hover:border-slate-500 text-slate-400 hover:text-slate-200 text-sm font-mono transition-colors"
+                >
+                  [ View Tech Matrix ]
+                </a>
+              </div>
+
+              {/* Key Metrics Banner */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-16 w-full pt-8 border-t border-borderDark/60">
+                <div>
+                  <div className="text-3xl font-extrabold text-white font-mono">10+</div>
+                  <div className="text-xs text-slate-400 mt-1 uppercase tracking-wider">Years Experience</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-primary font-mono">99.99%</div>
+                  <div className="text-xs text-slate-400 mt-1 uppercase tracking-wider">Target System Uptime</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-secondary font-mono">50+</div>
+                  <div className="text-xs text-slate-400 mt-1 uppercase tracking-wider">Projects Shipped</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-tertiary font-mono">&lt; 1.5s</div>
+                  <div className="text-xs text-slate-400 mt-1 uppercase tracking-wider">LCP Benchmark</div>
+                </div>
+              </div>
+            </section>
+
+            {/* 2. ABOUT SECTION */}
+            <section id="about" className="scroll-mt-24 space-y-8">
+              <div className="border-l-4 border-primary pl-4">
+                <h2 className="text-3xl font-bold text-white tracking-tight">System Engineering Philosophy</h2>
+                <p className="text-slate-400 text-sm font-mono mt-1">Foundational principles and execution standards</p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                <div className="lg:col-span-7 bg-surfaceDark border border-borderDark rounded-2xl p-6 sm:p-8 space-y-4">
+                  <p className="text-slate-300 leading-relaxed">
+                    I am a Senior Full-Stack Engineer and 3D Web Specialist with over a decade of experience designing resilience-first web architecture. My mission is simple: eliminate latency, ensure accessibility, and build immersive visual experiences that perform seamlessly across all devices.
+                  </p>
+                  <p className="text-slate-300 leading-relaxed">
+                    Whether optimizing complex GLSL fragment shaders for Three.js, structuring PostgreSQL database connection pools, or building automated CI/CD deployment pipelines on Vercel and AWS, I focus on predictable, maintainable software craftsmanship.
+                  </p>
+                  
+                  <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl bg-[#0a0a0b] border border-borderDark/80">
+                      <div className="text-primary font-semibold text-sm mb-1 flex items-center space-x-2">
+                        <Icon name="Zap" className="w-4 h-4" />
+                        <span>Performance First</span>
+                      </div>
+                      <p className="text-xs text-slate-400">Strict sub-200ms TBT and 60 FPS visual rendering targets.</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-[#0a0a0b] border border-borderDark/80">
+                      <div className="text-secondary font-semibold text-sm mb-1 flex items-center space-x-2">
+                        <Icon name="Shield" className="w-4 h-4" />
+                        <span>Zero-Trust Security</span>
+                      </div>
+                      <p className="text-xs text-slate-400">Strict input sanitization, rate-limiting, and OAuth rotation.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-5 bg-gradient-to-br from-surfaceDark to-[#0a0a0b] border border-borderDark rounded-2xl p-6 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+                      <Icon name="Globe" className="w-5 h-5 text-tertiary" />
+                      <span>Global & Regional Hub</span>
+                    </h3>
+                    <div className="space-y-3 font-mono text-xs text-slate-300">
+                      <div className="flex justify-between py-2 border-b border-borderDark/60">
+                        <span className="text-slate-400">Location:</span>
+                        <span>Ethiopia (EAT / UTC+3) & Remote</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-borderDark/60">
+                        <span className="text-slate-400">Languages:</span>
+                        <span>English (Fluent), Amharic (Native)</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-borderDark/60">
+                        <span className="text-slate-400">Core Runtime:</span>
+                        <span>Node.js LTS, React 18, Next.js App Router</span>
+                      </div>
+                      <div className="flex justify-between py-2">
+                        <span className="text-slate-400">Security Standard:</span>
+                        <span>WCAG 2.1 AA compliant</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-borderDark/60 flex items-center justify-between text-xs text-slate-400">
+                    <span>Verified GitHub Contributor</span>
+                    <a href="https://github.com/ahmedinhussen" target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center space-x-1">
+                      <span>@ahmedinhussen</span>
+                      <Icon name="ExternalLink" className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 3. SKILLS MATRIX SECTION */}
+            <section id="skills" className="scroll-mt-24 space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-l-4 border-secondary pl-4">
+                <div>
+                  <h2 className="text-3xl font-bold text-white tracking-tight">Technical Capabilities Matrix</h2>
+                  <p className="text-slate-400 text-sm font-mono mt-1">3D Constellation and accessible grid perspectives</p>
+                </div>
+                <div className="flex items-center space-x-2 bg-surfaceDark border border-borderDark rounded-xl p-1 text-xs font-mono">
+                  <button
+                    onClick={() => setSkillViewMode('constellation')}
+                    className={`px-3 py-1.5 rounded-lg transition-colors ${skillViewMode === 'constellation' ? 'bg-secondary text-white font-semibold' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    Constellation Mode
+                  </button>
+                  <button
+                    onClick={() => setSkillViewMode('grid')}
+                    className={`px-3 py-1.5 rounded-lg transition-colors ${skillViewMode === 'grid' ? 'bg-secondary text-white font-semibold' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    Accessible Grid
+                  </button>
+                </div>
+              </div>
+
+              {skillViewMode === 'constellation' ? (
+                /* Constellation Node Visualizer */
+                <div className="bg-surfaceDark border border-borderDark rounded-2xl p-6 sm:p-8 relative overflow-hidden min-h-[400px] flex flex-col justify-between">
+                  <div className="absolute top-4 right-4 text-xs font-mono text-slate-500">Interactive Skill Mesh</div>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 my-auto z-10">
+                    {skills.map((skill) => (
+                      <div
+                        key={skill.id}
+                        className="group bg-[#0a0a0b]/80 border border-borderDark hover:border-secondary p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary/20 flex flex-col items-center text-center"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-surfaceDark border border-borderDark flex items-center justify-center text-secondary mb-3 group-hover:bg-secondary group-hover:text-white transition-colors">
+                          <Icon name={skill.icon} className="w-6 h-6" />
+                        </div>
+                        <span className="font-semibold text-sm text-white block mb-1">{skill.name}</span>
+                        <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{skill.category}</span>
+                        
+                        <div className="w-full bg-borderDark rounded-full h-1.5 mt-3 overflow-hidden">
+                          <div
+                            className="bg-gradient-to-r from-secondary to-tertiary h-full rounded-full transition-all duration-1000"
+                            style={{ width: `${skill.level}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="text-center text-xs font-mono text-slate-500 pt-6">
+                    Connects dynamically across microservice layers
+                  </div>
+                </div>
+              ) : (
+                /* Accessible Grid List View */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {skills.map((skill) => (
+                    <div key={skill.id} className="bg-surfaceDark border border-borderDark p-4 rounded-xl flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 rounded-lg bg-[#0a0a0b] text-secondary border border-borderDark">
+                          <Icon name={skill.icon} className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-sm text-white">{skill.name}</div>
+                          <div className="text-xs text-slate-400 font-mono">{skill.category}</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-mono text-tertiary font-bold">{skill.level}%</div>
+                        <div className="text-[10px] text-slate-500 font-mono">Proficiency</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* 4. PROJECTS SECTION */}
+            <section id="projects" className="scroll-mt-24 space-y-8">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-l-4 border-tertiary pl-4">
+                <div>
+                  <h2 className="text-3xl font-bold text-white tracking-tight">Featured Architectural Engineering</h2>
+                  <p className="text-slate-400 text-sm font-mono mt-1">Inspect live systems, performance benchmarks, and source code</p>
+                </div>
+
+                {/* Filters */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {['All', '3D Web', 'Full Stack', 'AI & Data', 'DevOps'].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setProjectFilter(cat)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-colors ${
+                        projectFilter === cat 
+                          ? 'bg-tertiary text-slate-950 font-bold shadow-md' 
+                          : 'bg-surfaceDark border border-borderDark text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative max-w-md">
+                <input
+                  type="text"
+                  placeholder="Search projects by keyword, stack, or category..."
+                  value={projectSearch}
+                  onChange={(e) => setProjectSearch(e.target.value)}
+                  className="w-full bg-surfaceDark border border-borderDark rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-tertiary transition-colors"
+                />
+                <Icon name="Search" className="w-4 h-4 text-slate-500 absolute left-3 top-3.5" />
+              </div>
+
+              {/* Projects Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {filteredProjects.map((proj) => (
+                  <div
+                    key={proj.id}
+                    className="bg-surfaceDark border border-borderDark rounded-2xl overflow-hidden group hover:border-tertiary/60 transition-all duration-300 flex flex-col justify-between"
+                  >
+                    <div>
+                      {/* Image Thumbnail Header */}
+                      <div className="relative h-48 overflow-hidden bg-[#0a0a0b]">
+                        <img
+                          src={proj.thumbnail}
+                          alt={proj.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
+                        />
+                        <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md bg-[#0a0a0b]/80 backdrop-blur-md border border-borderDark text-[10px] font-mono text-tertiary font-semibold uppercase">
+                          {proj.category}
+                        </div>
+                      </div>
+
+                      {/* Content Body */}
+                      <div className="p-6 space-y-3">
+                        <h3 className="text-xl font-bold text-white group-hover:text-tertiary transition-colors">
+                          {proj.title}
+                        </h3>
+                        <p className="text-slate-400 text-sm line-clamp-2 leading-relaxed">
+                          {proj.description}
+                        </p>
+
+                        {/* Tech Tag Pills */}
+                        <div className="flex flex-wrap gap-1.5 pt-2">
+                          {proj.tags.map((tag, idx) => (
+                            <span key={idx} className="px-2 py-0.5 rounded bg-[#0a0a0b] border border-borderDark/80 text-[11px] font-mono text-slate-300">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card Actions Footer */}
+                    <div className="p-6 pt-0 flex items-center justify-between border-t border-borderDark/40 mt-4 pt-4">
+                      <button
+                        onClick={() => { setSelectedProject(proj); setActiveModal('project'); }}
+                        className="text-xs font-mono text-tertiary hover:underline flex items-center space-x-1"
+                      >
+                        <span>[ Deep Dive Modal ]</span>
+                        <Icon name="Eye" className="w-3.5 h-3.5" />
+                      </button>
+
+                      <div className="flex items-center space-x-3">
+                        <a
+                          href={proj.githubUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-2 rounded-lg bg-[#0a0a0b] border border-borderDark text-slate-400 hover:text-white transition-colors"
+                          title="View GitHub Repository"
+                        >
+                          <Icon name="Github" className="w-4 h-4" />
+                        </a>
+                        <a
+                          href={proj.liveUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-2 rounded-lg bg-tertiary/10 border border-tertiary/30 text-tertiary hover:bg-tertiary hover:text-slate-950 transition-colors"
+                          title="Open Live Application"
+                        >
+                          <Icon name="ExternalLink" className="w-4 h-4" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 5. CAREER & EXPERIENCE TIMELINE */}
+            <section id="experience" className="scroll-mt-24 space-y-8">
+              <div className="border-l-4 border-primary pl-4">
+                <h2 className="text-3xl font-bold text-white tracking-tight">Professional Leadership Timeline</h2>
+                <p className="text-slate-400 text-sm font-mono mt-1">Verified industry contributions and engineering positions</p>
+              </div>
+
+              <div className="relative border-l-2 border-borderDark ml-4 pl-6 space-y-8">
+                {experience.map((exp) => (
+                  <div key={exp.id} className="relative group">
+                    {/* Timeline Bullet */}
+                    <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-surfaceDark border-2 border-primary group-hover:scale-125 transition-transform" />
+
+                    <div className="bg-surfaceDark border border-borderDark rounded-2xl p-6 space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <div>
+                          <h3 className="text-lg font-bold text-white">{exp.position}</h3>
+                          <div className="text-sm text-primary font-medium">{exp.company}</div>
+                        </div>
+                        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0a0a0b] border border-borderDark text-xs font-mono text-slate-400">
+                          <Icon name="Clock" className="w-3 h-3 text-primary" />
+                          <span>{exp.period}</span>
+                        </div>
+                      </div>
+
+                      <p className="text-slate-300 text-sm leading-relaxed">
+                        {exp.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {exp.tags.map((t, idx) => (
+                          <span key={idx} className="px-2.5 py-0.5 rounded-full bg-[#0a0a0b] border border-borderDark text-[11px] font-mono text-slate-400">
+                            #{t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 6. TESTIMONIALS */}
+            <section id="testimonials" className="scroll-mt-24 space-y-8">
+              <div className="border-l-4 border-secondary pl-4">
+                <h2 className="text-3xl font-bold text-white tracking-tight">Peer & Leadership Endorsements</h2>
+                <p className="text-slate-400 text-sm font-mono mt-1">Client and executive testimonials</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {testimonials.map((t) => (
+                  <div key={t.id} className="bg-surfaceDark border border-borderDark p-6 rounded-2xl flex flex-col justify-between space-y-4">
+                    <p className="text-slate-300 text-sm italic leading-relaxed">
+                      "{t.quote}"
+                    </p>
+                    <div className="flex items-center space-x-4 pt-4 border-t border-borderDark/60">
+                      <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover border border-secondary" />
+                      <div>
+                        <div className="font-bold text-white text-sm">{t.name}</div>
+                        <div className="text-xs text-slate-400 font-mono">{t.role} · <span className="text-secondary">{t.company}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 7. BLOG & ARTICLES SECTION */}
+            <section id="blog" className="scroll-mt-24 space-y-8">
+              <div className="border-l-4 border-tertiary pl-4">
+                <h2 className="text-3xl font-bold text-white tracking-tight">Technical Publications</h2>
+                <p className="text-slate-400 text-sm font-mono mt-1">Articles on WebGL, architecture, and cloud scalability</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {blog.map((article) => (
+                  <div
+                    key={article.id}
+                    className="bg-surfaceDark border border-borderDark p-6 rounded-2xl flex flex-col justify-between hover:border-tertiary transition-colors cursor-pointer group"
+                    onClick={() => { setSelectedArticle(article); setActiveModal('blog'); }}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-xs font-mono text-slate-400">
+                        <span>{article.publishedAt}</span>
+                        <span className="text-tertiary">{article.readTime}</span>
+                      </div>
+                      <h3 className="text-xl font-bold text-white group-hover:text-tertiary transition-colors">
+                        {article.title}
+                      </h3>
+                      <p className="text-slate-400 text-sm line-clamp-2">
+                        {article.excerpt}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 mt-4 border-t border-borderDark/60">
+                      <div className="flex gap-2">
+                        {article.tags.map((tag, i) => (
+                          <span key={i} className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0a0a0b] text-slate-400 border border-borderDark">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <span className="text-xs font-mono text-tertiary group-hover:underline flex items-center space-x-1">
+                        <span>Read MDX</span>
+                        <Icon name="ExternalLink" className="w-3 h-3" />
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 8. CONTACT SECTION */}
+            <section id="contact" className="scroll-mt-24 space-y-8">
+              <div className="border-l-4 border-primary pl-4">
+                <h2 className="text-3xl font-bold text-white tracking-tight">Initiate Technical Consultation</h2>
+                <p className="text-slate-400 text-sm font-mono mt-1">Validated channel with honeypot anti-spam protection</p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Direct Contact Info Card */}
+                <div className="lg:col-span-5 bg-surfaceDark border border-borderDark rounded-2xl p-6 sm:p-8 space-y-6">
+                  <h3 className="text-xl font-bold text-white">Direct Channels</h3>
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    Have a project in mind, an architectural audit request, or a full-time leadership role? Send a message directly or connect via my secure channels.
+                  </p>
+
+                  <div className="space-y-4 text-sm font-mono">
+                    <div className="flex items-center space-x-3 p-3 rounded-xl bg-[#0a0a0b] border border-borderDark">
+                      <Icon name="Mail" className="w-5 h-5 text-primary" />
+                      <div>
+                        <div className="text-xs text-slate-500">EMAIL</div>
+                        <a href="mailto:ahmedinhussen@example.com" className="text-slate-200 hover:text-primary transition-colors">ahmedinhussen@example.com</a>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 p-3 rounded-xl bg-[#0a0a0b] border border-borderDark">
+                      <Icon name="Globe" className="w-5 h-5 text-secondary" />
+                      <div>
+                        <div className="text-xs text-slate-500">LOCATION</div>
+                        <span className="text-slate-200">Addis Ababa, Ethiopia (UTC+3)</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 p-3 rounded-xl bg-[#0a0a0b] border border-borderDark">
+                      <Icon name="Lock" className="w-5 h-5 text-tertiary" />
+                      <div>
+                        <div className="text-xs text-slate-500">PGP KEY FINGERPRINT</div>
+                        <span className="text-[10px] text-slate-400">4F8F 7F5C 8B92 F606 B6D4</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-borderDark/60 flex items-center justify-around">
+                    <a href="https://github.com/ahmedinhussen" target="_blank" rel="noreferrer" className="p-3 rounded-xl bg-[#0a0a0b] border border-borderDark text-slate-300 hover:text-primary transition-colors">
+                      <Icon name="Github" className="w-5 h-5" />
+                    </a>
+                    <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="p-3 rounded-xl bg-[#0a0a0b] border border-borderDark text-slate-300 hover:text-primary transition-colors">
+                      <Icon name="Linkedin" className="w-5 h-5" />
+                    </a>
+                    <a href="mailto:ahmedinhussen@example.com" className="p-3 rounded-xl bg-[#0a0a0b] border border-borderDark text-slate-300 hover:text-primary transition-colors">
+                      <Icon name="Mail" className="w-5 h-5" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Form */}
+                <div className="lg:col-span-7 bg-surfaceDark border border-borderDark rounded-2xl p-6 sm:p-8">
+                  <form onSubmit={handleContactSubmit} className="space-y-4">
+                    {/* Honeypot field (hidden from users) */}
+                    <input
+                      type="text"
+                      name="honeypot"
+                      value={contactForm.honeypot}
+                      onChange={(e) => setContactForm({ ...contactForm, honeypot: e.target.value })}
+                      style={{ display: 'none' }}
+                      tabIndex="-1"
+                      autoComplete="off"
+                    />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-mono text-slate-400 mb-1">YOUR NAME *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Elena Rostova"
+                          value={contactForm.name}
+                          onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                          className="w-full bg-[#0a0a0b] border border-borderDark rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-primary transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-mono text-slate-400 mb-1">EMAIL ADDRESS *</label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="elena@techlabs.io"
+                          value={contactForm.email}
+                          onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                          className="w-full bg-[#0a0a0b] border border-borderDark rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-primary transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-slate-400 mb-1">SUBJECT</label>
+                      <input
+                        type="text"
+                        placeholder="Architecture Consultation / Lead Opportunity"
+                        value={contactForm.subject}
+                        onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
+                        className="w-full bg-[#0a0a0b] border border-borderDark rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-primary transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-slate-400 mb-1">MESSAGE *</label>
+                      <textarea
+                        rows="5"
+                        required
+                        placeholder="Describe your project, platform requirements, or inquiry details..."
+                        value={contactForm.message}
+                        onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                        className="w-full bg-[#0a0a0b] border border-borderDark rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-primary transition-colors resize-none"
+                      />
+                    </div>
+
+                    {contactStatus.error && (
+                      <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-300 text-xs font-mono">
+                        {contactStatus.error}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={contactStatus.loading}
+                      className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90 font-semibold text-white shadow-lg transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+                    >
+                      {contactStatus.loading ? (
+                        <span>Transmitting Data...</span>
+                      ) : (
+                        <>
+                          <Icon name="Send" className="w-4 h-4" />
+                          <span>Dispatch Encrypted Message</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </section>
+          </main>
+
+          {/* FOOTER */}
+          <footer className="relative z-10 border-t border-borderDark/80 bg-[#0a0a0b] mt-32 py-12 px-4 lg:px-8">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-500 font-mono">
+              <div className="flex items-center space-x-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>© {new Date().getFullYear()} Ahmedin Hussen. Production Ready Build v2.4.0</span>
+              </div>
+              
+              <div className="flex space-x-6">
+                <a href="#hero" className="hover:text-primary transition-colors">Back to Top</a>
+                <button onClick={() => setActiveModal('architecture')} className="hover:text-tertiary transition-colors">API Endpoint Documentation</button>
+                <button onClick={() => setActiveModal('admin')} className="hover:text-secondary transition-colors">CMS Portal</button>
+              </div>
+            </div>
+          </footer>
+
+          {/* --- MODAL DIALOG OVERLAYS --- */}
+
+          {/* 1. ADMIN CMS DASHBOARD MODAL */}
+          {activeModal === 'admin' && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-lg overflow-y-auto">
+              <div className="bg-surfaceDark border border-borderDark w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden my-8">
+                {/* Modal Header & Role Switcher */}
+                <div className="p-6 bg-[#0a0a0b] border-b border-borderDark flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-xl bg-secondary/10 border border-secondary/30 text-secondary">
+                      <Icon name="Settings" className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-white">Content Management System</h2>
+                      <p className="text-xs font-mono text-slate-400">Authenticated CMS Console & Analytics</p>
+                    </div>
+                  </div>
+
+                  {/* Role Simulator Switcher */}
+                  <div className="flex items-center space-x-2 bg-surfaceDark border border-borderDark rounded-xl p-1 text-xs font-mono">
+                    <span className="px-2 text-slate-400 text-[10px]">ROLE:</span>
+                    {['admin', 'editor', 'viewer'].map((r) => (
+                      <button
+                        key={r}
+                        onClick={() => setRole(r)}
+                        className={`px-3 py-1 rounded-lg uppercase font-bold transition-colors ${role === r ? 'bg-primary text-white' : 'text-slate-400 hover:text-white'}`}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setActiveModal(null)}
+                    className="p-2 rounded-xl bg-surfaceDark border border-borderDark text-slate-400 hover:text-white"
+                  >
+                    <Icon name="X" className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* CMS Body Grid */}
+                <div className="p-6 space-y-8 max-h-[70vh] overflow-y-auto">
+                  {/* Realtime System Analytics Summary */}
+                  <div>
+                    <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">Live Traffic Insights</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      <div className="p-4 rounded-xl bg-[#0a0a0b] border border-borderDark">
+                        <div className="text-xs text-slate-400">Total Unique Visits</div>
+                        <div className="text-2xl font-bold font-mono text-primary mt-1">14,290</div>
+                      </div>
+                      <div className="p-4 rounded-xl bg-[#0a0a0b] border border-borderDark">
+                        <div className="text-xs text-slate-400">Avg. Page Load Time</div>
+                        <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">0.42s</div>
+                      </div>
+                      <div className="p-4 rounded-xl bg-[#0a0a0b] border border-borderDark">
+                        <div className="text-xs text-slate-400">Inbound Messages</div>
+                        <div className="text-2xl font-bold font-mono text-tertiary mt-1">{messages.length}</div>
+                      </div>
+                      <div className="p-4 rounded-xl bg-[#0a0a0b] border border-borderDark">
+                        <div className="text-xs text-slate-400">Role Status</div>
+                        <div className="text-2xl font-bold font-mono text-secondary mt-1 uppercase">{role}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Projects Management Table */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider">Manage Projects ({projects.length})</h3>
+                      {role !== 'viewer' && (
+                        <button
+                          onClick={() => {
+                            const newProj = {
+                              id: 'proj-' + Date.now(),
+                              title: 'New Cloud Architecture Project',
+                              slug: 'new-cloud-proj',
+                              description: 'Dynamically added via admin interface.',
+                              category: 'Full Stack',
+                              featured: false,
+                              thumbnail: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80',
+                              liveUrl: '#',
+                              githubUrl: '#',
+                              tags: ['React', 'Node.js'],
+                              status: 'Draft',
+                              order: projects.length + 1
+                            };
+                            setProjects([newProj, ...projects]);
+                            showToast('Created new draft project item.');
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-semibold flex items-center space-x-1"
+                        >
+                          <Icon name="Plus" className="w-3.5 h-3.5" />
+                          <span>Add Project</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="border border-borderDark rounded-xl overflow-hidden font-mono text-xs">
+                      <table className="w-full text-left border-collapse">
+                        <thead className="bg-[#0a0a0b] text-slate-400 border-b border-borderDark">
+                          <tr>
+                            <th className="p-3">Title</th>
+                            <th className="p-3">Category</th>
+                            <th className="p-3">Status</th>
+                            <th className="p-3 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-borderDark/60">
+                          {projects.map((p) => (
+                            <tr key={p.id} className="hover:bg-[#0a0a0b]/50">
+                              <td className="p-3 font-semibold text-white">{p.title}</td>
+                              <td className="p-3 text-slate-400">{p.category}</td>
+                              <td className="p-3">
+                                <span className="px-2 py-0.5 rounded bg-tertiary/10 text-tertiary border border-tertiary/20">
+                                  {p.status || 'Active'}
+                                </span>
+                              </td>
+                              <td className="p-3 text-right space-x-2">
+                                {role === 'admin' ? (
+                                  <button
+                                    onClick={() => {
+                                      setProjects(projects.filter(item => item.id !== p.id));
+                                      showToast('Project deleted', 'error');
+                                    }}
+                                    className="p-1 rounded bg-rose-950/60 text-rose-300 border border-rose-500/40 hover:bg-rose-900"
+                                    title="Delete Project"
+                                  >
+                                    <Icon name="Trash" className="w-3.5 h-3.5" />
+                                  </button>
+                                ) : (
+                                  <span className="text-slate-600 text-[10px]">Read Only</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Contact Messages Inbox */}
+                  <div>
+                    <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">Inbound Inquiry Inbox</h3>
+                    <div className="space-y-3 font-mono text-xs">
+                      {messages.map((m) => (
+                        <div key={m.id} className="p-4 rounded-xl bg-[#0a0a0b] border border-borderDark space-y-2">
+                          <div className="flex justify-between text-slate-400">
+                            <span className="font-bold text-white">{m.name} ({m.email})</span>
+                            <span>{m.timestamp}</span>
+                          </div>
+                          <div className="text-primary font-semibold">{m.subject}</div>
+                          <p className="text-slate-300 font-sans text-xs">{m.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 2. SYSTEM ARCHITECTURE & LIVE API EXPLORER MODAL */}
+          {activeModal === 'architecture' && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-lg overflow-y-auto">
+              <div className="bg-surfaceDark border border-borderDark w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden my-8">
+                <div className="p-6 bg-[#0a0a0b] border-b border-borderDark flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-xl bg-tertiary/10 border border-tertiary/30 text-tertiary">
+                      <Icon name="Terminal" className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-white">Architecture & OpenAPI Endpoint Inspector</h2>
+                      <p className="text-xs font-mono text-slate-400">Live API response tester and system topology</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setActiveModal(null)}
+                    className="p-2 rounded-xl bg-surfaceDark border border-borderDark text-slate-400 hover:text-white"
+                  >
+                    <Icon name="X" className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto font-mono text-xs">
+                  {/* System Topology Diagram */}
+                  <div>
+                    <div className="text-slate-400 uppercase text-[10px] mb-2 tracking-wider">System Pipeline Topology</div>
+                    <div className="p-4 rounded-xl bg-[#0a0a0b] border border-borderDark flex flex-wrap items-center justify-around gap-4 text-center">
+                      <div className="p-3 rounded-lg border border-borderDark bg-surfaceDark">
+                        <div className="text-primary font-bold">Client / WebGL</div>
+                        <div className="text-[10px] text-slate-500">Three.js + React</div>
+                      </div>
+                      <Icon name="Send" className="w-4 h-4 text-slate-600" />
+                      <div className="p-3 rounded-lg border border-borderDark bg-surfaceDark">
+                        <div className="text-tertiary font-bold">Next.js Edge CDN</div>
+                        <div className="text-[10px] text-slate-500">App Router v14</div>
+                      </div>
+                      <Icon name="Send" className="w-4 h-4 text-slate-600" />
+                      <div className="p-3 rounded-lg border border-borderDark bg-surfaceDark">
+                        <div className="text-secondary font-bold">Postgres & Redis</div>
+                        <div className="text-[10px] text-slate-500">Prisma Accelerate</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Endpoint Tester */}
+                  <div>
+                    <div className="text-slate-400 uppercase text-[10px] mb-2 tracking-wider">REST API Endpoints</div>
+                    <div className="space-y-3">
+                      <div className="p-3 rounded-xl bg-[#0a0a0b] border border-borderDark flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">GET</span>
+                          <span className="text-slate-200">/api/projects</span>
+                        </div>
+                        <span className="text-slate-500">Returns 200 OK (JSON)</span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-[#0a0a0b] border border-borderDark flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">POST</span>
+                          <span className="text-slate-200">/api/contact</span>
+                        </div>
+                        <span className="text-slate-500">Rate Limited (10 req/h)</span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-[#0a0a0b] border border-borderDark flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">GET</span>
+                          <span className="text-slate-200">/api/health</span>
+                        </div>
+                        <span className="text-emerald-400 font-bold">HEALTHY (14ms)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 3. PROJECT DETAIL MODAL */}
+          {activeModal === 'project' && selectedProject && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-lg overflow-y-auto">
+              <div className="bg-surfaceDark border border-borderDark w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden my-8">
+                <div className="relative h-64 bg-[#0a0a0b]">
+                  <img src={selectedProject.thumbnail} alt={selectedProject.title} className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => setActiveModal(null)}
+                    className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-white hover:bg-black"
+                  >
+                    <Icon name="X" className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-full bg-tertiary/10 text-tertiary border border-tertiary/30 text-xs font-mono font-semibold">
+                      {selectedProject.category}
+                    </span>
+                    <span className="text-xs font-mono text-slate-400">Status: {selectedProject.status}</span>
+                  </div>
+
+                  <h2 className="text-2xl font-bold text-white">{selectedProject.title}</h2>
+                  <p className="text-slate-300 text-sm leading-relaxed">{selectedProject.longDescription || selectedProject.description}</p>
+
+                  <div className="pt-2">
+                    <div className="text-xs font-mono text-slate-400 mb-2">TECHNOLOGY STACK</div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProject.tags.map((t, idx) => (
+                        <span key={idx} className="px-2.5 py-1 rounded bg-[#0a0a0b] border border-borderDark text-xs font-mono text-slate-300">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end space-x-3 pt-4 border-t border-borderDark/60">
+                    <a
+                      href={selectedProject.githubUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-4 py-2 rounded-xl bg-[#0a0a0b] border border-borderDark text-xs font-mono text-slate-300 hover:text-white flex items-center space-x-1.5"
+                    >
+                      <Icon name="Github" className="w-4 h-4" />
+                      <span>Source Code</span>
+                    </a>
+                    <a
+                      href={selectedProject.liveUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-4 py-2 rounded-xl bg-tertiary text-slate-950 font-bold text-xs font-mono hover:opacity-90 flex items-center space-x-1.5"
+                    >
+                      <Icon name="ExternalLink" className="w-4 h-4" />
+                      <span>Launch Live App</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 4. BLOG READER MODAL */}
+          {activeModal === 'blog' && selectedArticle && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-lg overflow-y-auto">
+              <div className="bg-surfaceDark border border-borderDark w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden my-8">
+                <div className="p-6 bg-[#0a0a0b] border-b border-borderDark flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-mono text-tertiary">{selectedArticle.readTime} · {selectedArticle.publishedAt}</span>
+                    <h2 className="text-xl font-bold text-white mt-1">{selectedArticle.title}</h2>
+                  </div>
+                  <button
+                    onClick={() => setActiveModal(null)}
+                    className="p-2 rounded-xl bg-surfaceDark border border-borderDark text-slate-400 hover:text-white"
+                  >
+                    <Icon name="X" className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                  <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-line font-sans">
+                    {selectedArticle.content}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    };
+
+    // Render App
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
